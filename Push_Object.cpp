@@ -13,12 +13,6 @@ PushObject::PushObject( int pos )
     mBox = { 0, 0, WIDTH, HEIGHT };
 
     ObjectStatus = GOAL_NOT;
-
-    ObjectFacing = new facing[4];
-    ObjectFacing[0] = notFacing;
-    ObjectFacing[1] = notFacing;
-    ObjectFacing[2] = notFacing;
-    ObjectFacing[3] = notFacing;
 }
 
 bool PushObject::move( Tile * tiles[], status Move )
@@ -41,11 +35,9 @@ bool PushObject::move( Tile * tiles[], status Move )
         mVel = 0;
         break;
     }
-
     //Object 
     mPos += mVel;
-
-    if( touchesWall(tiles[mPos]->getBox(), tiles ) )
+    if( touchesWall(tiles[mPos]->getBox(), tiles ))
     {
         mPos -= mVel;
         mVel = 0;
@@ -53,43 +45,21 @@ bool PushObject::move( Tile * tiles[], status Move )
     }
     mBox = tiles[mPos]->getBox();
     mVel = 0;
+    if ((tiles[mPos]->getType() == TILE_GOAL) )
+    {
+        ObjectStatus = GOAL;
+    }
+    else
+    {
+        ObjectStatus = GOAL_NOT;
+    }
 
     return true;
 }
 
-void PushObject::ReachGoal( Tile *tile[] )
+int PushObject::getObjectStatus()
 {
-    for( int i = 0; i < TOTAL_TILES; ++i )
-    {
-        if( ( tile[ i ]->getType() == TILE_GOAL ) && ( getToGoal( mBox, tile[ i ]->getBox() ) ) )
-        {
-            ObjectStatus = GOAL;
-        }
-        else
-        {
-            ObjectStatus = GOAL_NOT;
-        }
-    }
-}
-
-int PushObject::getFacing(int i)
-{
-    return ObjectFacing[i];
-}
-
-void PushObject::gettingFacingVal(Tile* tiles[])
-{
-    if (touchesWall(tiles[mPos - EDGE_TILES]->getBox(), tiles)) ObjectFacing[0] = frontFacing;
-    else ObjectFacing[0] = notFacing;
-
-    if (touchesWall(tiles[mPos + EDGE_TILES]->getBox(), tiles)) ObjectFacing[1] = backFacing;
-    else ObjectFacing[1] = notFacing;
-
-    if (touchesWall(tiles[mPos - 1]->getBox(), tiles)) ObjectFacing[2] = leftFacing;
-    else ObjectFacing[2] = notFacing;
-
-    if (touchesWall(tiles[mPos + 1]->getBox(), tiles)) ObjectFacing[3] = rightFacing;
-    else ObjectFacing[3] = notFacing;
+    return ObjectStatus;
 }
 
 SDL_Rect PushObject::getBox()
@@ -97,7 +67,7 @@ SDL_Rect PushObject::getBox()
     return mBox;
 }
 
-void PushObject::render( SDL_Rect& camera )
+void PushObject::render()
 {
         gPushObject.render( mBox.x, mBox.y, &gObjectClips[ ObjectStatus ] );
 }

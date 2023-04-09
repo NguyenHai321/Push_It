@@ -12,12 +12,9 @@ Tile::Tile( int x, int y, int tileType )
     mType = tileType;
 }
 
-void Tile::render( SDL_Rect& camera )
+void Tile::render()
 {
-    if( checkCollision( camera, mBox ) )
-    {
-        gTileTexture.render( mBox.x - camera.x, mBox.y - camera.y, &gTileClips[ mType ] );
-    }
+    gTileTexture.render( mBox.x, mBox.y, &gTileClips[ mType ] );
 }
 
 SDL_Rect Tile::getBox()
@@ -28,4 +25,19 @@ SDL_Rect Tile::getBox()
 int Tile::getType()
 {
     return mType;
+}
+
+void Tile::setOccupied()
+{
+    occupiedTile = yes;
+}
+
+void Tile::deOccupied()
+{
+    occupiedTile = no;
+}
+
+int Tile::getStat()
+{
+    return occupiedTile;
 }

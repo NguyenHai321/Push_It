@@ -43,35 +43,37 @@ void mainChar::handleEvent( SDL_Event& e )
     }
 }
 
-void mainChar::move( Tile* tiles[] , PushObject* push)
+void mainChar::move( Tile* tiles[] , PushObject* push[])
 {
     mPos += mVel;
-
-    if (checkCollision(tiles[ mPos ]->getBox(), push->getBox()))
-    {   
-        if (!push->move(tiles, CharStatus))
+    for (int i = 0; i < 2; ++i)
+    {
+        if (checkCollision(tiles[mPos]->getBox(), push[i]->getBox()))
         {
-            mPos -=  mVel;
-            mVel = 0;
-            return ;
+            if (!push[i]->move(tiles, CharStatus))
+            {
+                mPos -= mVel;
+                mVel = 0;
+                return;
+            }
         }
-    }
-    else
-    {
-        push->move(tiles, NONE);
-    }
-    if (touchesWall(tiles[mPos]->getBox(), tiles))
-    {
-        mPos -= mVel;
-        mVel = 0;
-        return ;
+        else
+        {
+            push[i]->move(tiles, NONE);
+        }
+        if (touchesWall(tiles[mPos]->getBox(), tiles))
+        {
+            mPos -= mVel;
+            mVel = 0;
+            return;
+        }
     }
     mBox = tiles[ mPos ]->getBox();
     mVel = 0;
     return ;
 }
 
-void mainChar::render( SDL_Rect& camera )
+void mainChar::render()
 {
     gMainChar.render( mBox.x + 4, mBox.y + 4 , NULL, 90*CharStatus );
 }

@@ -41,13 +41,10 @@ enum GoalStatus
     GOAL_NOT
 };
 
-enum facing
+enum Occupied
 {
-    frontFacing = 0,
-    leftFacing = 1,
-    backFacing = 2,
-    rightFacing = 3,
-    notFacing = 4
+    yes,
+    no
 };
 
 #endif // CONSTANT_H_INCLUDED

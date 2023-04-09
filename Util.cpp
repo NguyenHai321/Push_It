@@ -77,7 +77,7 @@ bool loadMedia( Tile* tiles[], const char* map_path )
     return success;
 }
 
-void close( Tile* tiles[] )
+void close( Tile* tiles[], PushObject* push[])
 {
     for( int i = 0; i < TOTAL_TILES; i++ )
     {
@@ -88,6 +88,14 @@ void close( Tile* tiles[] )
         }
     }
 
+    for (int i = 0; i < 2; ++i)
+    {
+        if (push[i] != NULL)
+        {
+            delete push[i];
+            push[i] = NULL;
+        }
+    }
 
     gPushObject.free();
     gMainChar.free();
@@ -266,39 +274,58 @@ bool touchesWall( SDL_Rect box, Tile* tiles[] )
     return false;
 }
 
-void setObject()
+bool WinGame(int goalNum, PushObject* box[])
 {
-    gObjectClips[ GOAL ].x = 48;
-    gObjectClips[ GOAL ].y = 0;
-    gObjectClips[ GOAL ].h = TILE_HEIGHT;
-    gObjectClips[ GOAL ].w = TILE_WIDTH;
-
-    gObjectClips[ GOAL_NOT ].x = 0;
-    gObjectClips[ GOAL_NOT ].y = 0;
-    gObjectClips[ GOAL_NOT ].h = TILE_HEIGHT;
-    gObjectClips[ GOAL_NOT ].w = TILE_WIDTH;
+    int count = 0;
+    for (int i = 0; i < goalNum; ++i )
+    {
+        if (box[i]->getObjectStatus() == GOAL)
+        {
+            count++;
+        }
+    }
+    if (count == goalNum) return true;
+    else return false;
 }
 
-bool getToGoal( SDL_Rect a, SDL_Rect b )
+bool setObject(PushObject* push[], const char* map_data)
 {
-    int leftA, leftB;
-    int rightA, rightB;
-    int topA, topB;
-    int bottomA, bottomB;
+    bool loadData = true;
+    std::ifstream map(map_data);
 
-    leftA = a.x;
-    rightA = a.x + a.w;
-    topA = a.y;
-    bottomA = a.y + a.h;
-
-    leftB = b.x;
-    rightB = b.x + b.w;
-    topB = b.y;
-    bottomB = b.y + b.h;
-
-    if( ( bottomA != bottomB ) || ( topA != topB ) || ( leftA != leftB ) || ( rightA != rightB ) )
+    if (map.fail())
     {
-        return false;
+        std::cout << "failed to load map_data" << std::endl;
+        loadData = false;
     }
-    return true;
+    else
+    {
+        for (int i = 0; i < 2; ++i)
+        {
+            int pos = -1;
+            
+            map >> pos;
+            if (map.fail())
+            {
+                std::cout << "end of map_data";
+                loadData = false;
+                break;
+            }
+            push[i] = new PushObject(pos);
+        }
+        if (loadData)
+        {
+            gObjectClips[GOAL].x = 48;
+            gObjectClips[GOAL].y = 0;
+            gObjectClips[GOAL].h = TILE_HEIGHT;
+            gObjectClips[GOAL].w = TILE_WIDTH;
+
+            gObjectClips[GOAL_NOT].x = 0;
+            gObjectClips[GOAL_NOT].y = 0;
+            gObjectClips[GOAL_NOT].h = TILE_HEIGHT;
+            gObjectClips[GOAL_NOT].w = TILE_WIDTH;
+        }
+    }
+    map.close();
+    return loadData;
 }

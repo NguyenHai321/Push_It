@@ -12,7 +12,7 @@ bool init();
 
 bool loadMedia( Tile* tiles[], const char* map_path );
 
-void close( Tile* tiles[] );
+void close( Tile* tiles[], PushObject* push[]);
 
 bool checkCollision( SDL_Rect a, SDL_Rect b );
 
@@ -20,8 +20,8 @@ bool setTiles( Tile* tiles[], const char* map_path );
 
 bool touchesWall( SDL_Rect box, Tile* tiles[] );
 
-void setObject();
+bool WinGame(int goalNum, PushObject* box[]);
 
-bool getToGoal( SDL_Rect a, SDL_Rect b );
+bool setObject(PushObject* push[], const char* map_data);
 
 #endif // UTIL_H_INCLUDED

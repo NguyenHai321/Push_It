@@ -15,13 +15,9 @@ public:
 
     bool move(Tile* tile[], status Move);
 
-    void render(SDL_Rect& camera);
+    void render();
 
-    void ReachGoal(Tile* tile[]);
-
-    int getFacing(int i);
-
-    void gettingFacingVal(Tile* tile[]);
+    int getObjectStatus();
 
     SDL_Rect getBox();
 private:
@@ -30,8 +26,6 @@ private:
     int mVel, mPos;
 
     GoalStatus ObjectStatus;
-
-    facing* ObjectFacing;
 };
 
 #endif // PUSH_OBJECT_H_INCLUDED

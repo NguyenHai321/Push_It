@@ -8,8 +8,8 @@
 class mainChar
 {
 public:
-    static const int WIDTH = 48;
-    static const int HEIGHT = 48;
+    static const int WIDTH = 40;
+    static const int HEIGHT = 40;
 
     static const int VEL = 1;
 
@@ -19,9 +19,9 @@ public:
 
     void handleEvent( SDL_Event& e );
 
-    void move(Tile* tiles[], PushObject* push);
+    void move(Tile* tiles[], PushObject* push[]);
 
-    void render(SDL_Rect& camera);
+    void render();
 
     status getStatus();
 

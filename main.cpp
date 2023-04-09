@@ -13,10 +13,14 @@ int main( int argc, char* args[] )
 	{
 		//The level tiles
 		Tile* tileSet[TOTAL_TILES];
-
-		if( !loadMedia( tileSet, "map/map.map" ) )
+		PushObject* Object[2];
+		if (!setObject(Object, "map/map_data.map"))
 		{
-			printf( "Failed to load media!\n" );
+			std::cout << "failed to load Object\n" << std::endl;
+		}
+		else if( !loadMedia( tileSet, "map/map.map" ) && !setObject(Object, "map/map_data.map") )
+		{
+			std::cout << "Failed to load media!\n" << std::endl;
 		}
 		else
 		{
@@ -26,12 +30,8 @@ int main( int argc, char* args[] )
 
 			mainChar Rabbit;
             // chinh lai
-			PushObject Object(54);
 
 			status move = NONE;
-
-			//Level camera
-			SDL_Rect camera = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
 
 			//While application is running
 			while( !quit )
@@ -49,13 +49,8 @@ int main( int argc, char* args[] )
 					Rabbit.handleEvent( e );
 				}
 
-				setObject();
-				Object.gettingFacingVal(tileSet);
-
-				Object.ReachGoal( tileSet );
-
 				//Move the object
-				Rabbit.move( tileSet, &Object );
+				Rabbit.move( tileSet, Object );
 
 				//Clear screen
 				SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
@@ -64,13 +59,19 @@ int main( int argc, char* args[] )
 				//Render level
 				for( int i = 0; i < TOTAL_TILES; ++i )
 				{
-					tileSet[ i ]->render( camera );
+					tileSet[ i ]->render();
 				}
 
-				Object.render( camera );
+				Object[0]->render();
+				Object[1]->render();
 
 				//Render dot
-				Rabbit.render( camera );
+				Rabbit.render();
+
+				if (WinGame(2, Object))
+				{
+					std::cout << "Win" << std::endl;
+				}
 
 				//Update screen
 				SDL_RenderPresent( gRenderer );
@@ -78,7 +79,7 @@ int main( int argc, char* args[] )
 		}
 
 		//Free resources and close SDL
-		close( tileSet );
+		close( tileSet, Object );
 	}
 
 	return 0;
