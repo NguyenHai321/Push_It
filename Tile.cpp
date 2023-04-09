@@ -20,12 +20,12 @@ void Tile::render( SDL_Rect& camera )
     }
 }
 
-int Tile::getType()
-{
-    return mType;
-}
-
 SDL_Rect Tile::getBox()
 {
     return mBox;
+}
+
+int Tile::getType()
+{
+    return mType;
 }

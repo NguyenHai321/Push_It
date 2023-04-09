@@ -6,6 +6,7 @@
 #include "Global.h"
 #include "Constant.h"
 #include "Push_Object.h"
+#include "MainChar.h"
 
 bool init();
 

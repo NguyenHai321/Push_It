@@ -3,6 +3,7 @@
 
 #include "LTexture.h"
 #include "Tile.h"
+#include "Push_Object.h"
 
 class mainChar
 {
@@ -18,9 +19,7 @@ public:
 
     void handleEvent( SDL_Event& e );
 
-    void move( Tile *tile[] );
-
-    void setCamera( SDL_Rect& camera );
+    void move(Tile* tiles[], PushObject* push);
 
     void render(SDL_Rect& camera);
 

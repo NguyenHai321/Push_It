@@ -24,9 +24,11 @@ int main( int argc, char* args[] )
 
 			SDL_Event e;
 
-			mainChar Push;
+			mainChar Rabbit;
             // chinh lai
-			PushObject Object;
+			PushObject Object(54);
+
+			status move = NONE;
 
 			//Level camera
 			SDL_Rect camera = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
@@ -44,16 +46,16 @@ int main( int argc, char* args[] )
 					}
 
 					//Handle input for the dot
-					Push.handleEvent( e );
+					Rabbit.handleEvent( e );
 				}
 
 				setObject();
+				Object.gettingFacingVal(tileSet);
 
-				Object.move( tileSet, &Push );
 				Object.ReachGoal( tileSet );
 
 				//Move the object
-				Push.move( tileSet );
+				Rabbit.move( tileSet, &Object );
 
 				//Clear screen
 				SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
@@ -68,7 +70,7 @@ int main( int argc, char* args[] )
 				Object.render( camera );
 
 				//Render dot
-				Push.render( camera );
+				Rabbit.render( camera );
 
 				//Update screen
 				SDL_RenderPresent( gRenderer );

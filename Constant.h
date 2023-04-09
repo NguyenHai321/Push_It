@@ -28,12 +28,26 @@ const int TILE_VOID = 8;
 
 enum status
 {
-    UP,
-    RIGHT,
-    DOWN,
-    LEFT,
+    UP = 0,
+    RIGHT = 1,
+    DOWN = 2,
+    LEFT = 3,
+    NONE = 4,
+};
+
+enum GoalStatus
+{
     GOAL,
     GOAL_NOT
+};
+
+enum facing
+{
+    frontFacing = 0,
+    leftFacing = 1,
+    backFacing = 2,
+    rightFacing = 3,
+    notFacing = 4
 };
 
 #endif // CONSTANT_H_INCLUDED

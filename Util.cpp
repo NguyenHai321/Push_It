@@ -1,5 +1,7 @@
 #include "Util.h"
 #include "Tile.h"
+#include "Constant.h"
+#include "Push_Object.h"
 
 bool init()
 {

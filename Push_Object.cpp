@@ -5,49 +5,54 @@
 #include "Constant.h"
 #include "LTexture.h"
 
-PushObject::PushObject()
+PushObject::PushObject( int pos )
 {
-    mPos = 54;
+    mPos = pos ;
     mVel = 0;
 
+    mBox = { 0, 0, WIDTH, HEIGHT };
+
     ObjectStatus = GOAL_NOT;
+
+    ObjectFacing = new facing[4];
+    ObjectFacing[0] = notFacing;
+    ObjectFacing[1] = notFacing;
+    ObjectFacing[2] = notFacing;
+    ObjectFacing[3] = notFacing;
 }
 
-bool PushObject::move( Tile* tiles[], mainChar* mainChar )
-{
-    if (checkCollision(mainChar->getBox(), mBox))
+bool PushObject::move( Tile * tiles[], status Move )
+{   
+    switch (Move) 
     {
-        switch (mainChar->getStatus() )
-        {
-        case UP:
-            mVel -= EDGE_TILES;
-            break;
-        case DOWN:
-            mVel += EDGE_TILES;
-            break;
-        case LEFT:
-            mVel -= 1;
-            break;
-        case RIGHT:
-            mVel += 1;
-            break;
-        default:
-            break;
-        }
+    case UP:
+        mVel -= EDGE_TILES;
+        break;
+    case DOWN:
+        mVel += EDGE_TILES;
+        break;
+    case LEFT:
+        mVel -= 1;
+        break;
+    case RIGHT:
+        mVel += 1;
+        break;
+    default:
+        mVel = 0;
+        break;
     }
 
+    //Object 
     mPos += mVel;
 
-    if( touchesWall(tiles[mPos]->getBox(), tiles) ||
-        mPos < EDGE_TILES ||
-        mPos % EDGE_TILES == 0 ||
-        mPos % EDGE_TILES == EDGE_TILES - 1 ||
-        mPos > EDGE_TILES * EDGE_TILES - EDGE_TILES - 1)
+    if( touchesWall(tiles[mPos]->getBox(), tiles ) )
     {
         mPos -= mVel;
-           return false;
+        mVel = 0;
+        return false;
     }
     mBox = tiles[mPos]->getBox();
+    mVel = 0;
 
     return true;
 }
@@ -65,6 +70,31 @@ void PushObject::ReachGoal( Tile *tile[] )
             ObjectStatus = GOAL_NOT;
         }
     }
+}
+
+int PushObject::getFacing(int i)
+{
+    return ObjectFacing[i];
+}
+
+void PushObject::gettingFacingVal(Tile* tiles[])
+{
+    if (touchesWall(tiles[mPos - EDGE_TILES]->getBox(), tiles)) ObjectFacing[0] = frontFacing;
+    else ObjectFacing[0] = notFacing;
+
+    if (touchesWall(tiles[mPos + EDGE_TILES]->getBox(), tiles)) ObjectFacing[1] = backFacing;
+    else ObjectFacing[1] = notFacing;
+
+    if (touchesWall(tiles[mPos - 1]->getBox(), tiles)) ObjectFacing[2] = leftFacing;
+    else ObjectFacing[2] = notFacing;
+
+    if (touchesWall(tiles[mPos + 1]->getBox(), tiles)) ObjectFacing[3] = rightFacing;
+    else ObjectFacing[3] = notFacing;
+}
+
+SDL_Rect PushObject::getBox()
+{
+    return mBox;
 }
 
 void PushObject::render( SDL_Rect& camera )

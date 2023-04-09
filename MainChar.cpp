@@ -3,6 +3,7 @@
 #include "Util.h"
 #include "Constant.h"
 #include "Global.h"
+#include "Push_Object.h"
 
 mainChar::mainChar()
 {
@@ -12,7 +13,7 @@ mainChar::mainChar()
     mBox.w = WIDTH;
     mBox.h = HEIGHT;
 
-    CharStatus = GOAL_NOT;
+    CharStatus = UP;
 }
 
 // sua lai movement
@@ -42,20 +43,32 @@ void mainChar::handleEvent( SDL_Event& e )
     }
 }
 
-void mainChar::move( Tile* tiles[] )
+void mainChar::move( Tile* tiles[] , PushObject* push)
 {
     mPos += mVel;
-    if ( touchesWall( tiles[ mPos ]->getBox(), tiles ) ||
-         mPos < EDGE_TILES                             ||
-         mPos % EDGE_TILES == 0                        ||
-         mPos % EDGE_TILES  == EDGE_TILES - 1          ||
-         mPos > EDGE_TILES * EDGE_TILES - EDGE_TILES - 1 )
+
+    if (checkCollision(tiles[ mPos ]->getBox(), push->getBox()))
+    {   
+        if (!push->move(tiles, CharStatus))
+        {
+            mPos -=  mVel;
+            mVel = 0;
+            return ;
+        }
+    }
+    else
     {
-        //Move back
+        push->move(tiles, NONE);
+    }
+    if (touchesWall(tiles[mPos]->getBox(), tiles))
+    {
         mPos -= mVel;
+        mVel = 0;
+        return ;
     }
     mBox = tiles[ mPos ]->getBox();
     mVel = 0;
+    return ;
 }
 
 void mainChar::render( SDL_Rect& camera )
