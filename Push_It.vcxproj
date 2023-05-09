@@ -132,6 +132,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="LButton.cpp" />
+    <ClCompile Include="Game.cpp" />
     <ClCompile Include="Global.cpp" />
     <ClCompile Include="LTexture.cpp" />
     <ClCompile Include="main.cpp" />
@@ -141,9 +143,10 @@
     <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="LButton.h" />
     <ClInclude Include="Constant.h" />
+    <ClInclude Include="Game.h" />
     <ClInclude Include="Global.h" />
-    <ClInclude Include="LevelManagement.h" />
     <ClInclude Include="LTexture.h" />
     <ClInclude Include="MainChar.h" />
     <ClInclude Include="Push_Object.h" />

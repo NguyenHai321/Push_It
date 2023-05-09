@@ -5,6 +5,7 @@
 #include "Constant.h"
 #include "LTexture.h"
 
+
 PushObject::PushObject( int pos )
 {
     mPos = pos ;
@@ -36,13 +37,25 @@ bool PushObject::move( Tile * tiles[], status Move )
         break;
     }
     //Object 
+    tiles[mPos]->deOccupied();
     mPos += mVel;
-    if( touchesWall(tiles[mPos]->getBox(), tiles ))
+    if (touchesWall(tiles[mPos]->getBox(), tiles) )
+    {   
+        mPos -= mVel;
+        mVel = 0;
+        tiles[mPos]->setOccupied();
+        return false;
+    }
+    else if (tiles[mPos]->getStat() == yes && mVel != 0)
     {
         mPos -= mVel;
         mVel = 0;
+        tiles[mPos]->setOccupied();
         return false;
     }
+
+    tiles[mPos-mVel]->deOccupied();
+    tiles[mPos]->setOccupied();
     mBox = tiles[mPos]->getBox();
     mVel = 0;
     if ((tiles[mPos]->getType() == TILE_GOAL) )
@@ -69,5 +82,5 @@ SDL_Rect PushObject::getBox()
 
 void PushObject::render()
 {
-        gPushObject.render( mBox.x, mBox.y, &gObjectClips[ ObjectStatus ] );
+    gPushObject.render( mBox.x, mBox.y, &gObjectClips[ ObjectStatus ] );
 }

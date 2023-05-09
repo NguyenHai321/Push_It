@@ -14,16 +14,21 @@ public:
     static const int VEL = 1;
 
     mainChar();
+    mainChar(int pos);
 
     SDL_Rect getBox();
 
     void handleEvent( SDL_Event& e );
 
-    void move(Tile* tiles[], PushObject* push[]);
+    void move(Tile* tiles[], PushObject* push[], int num);
 
     void render();
 
+    void updatePos(int pos);
+
     status getStatus();
+
+    void resetStatus();
 
 private:
     SDL_Rect mBox;

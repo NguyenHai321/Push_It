@@ -2,6 +2,8 @@
 #include "Tile.h"
 #include "Constant.h"
 #include "Push_Object.h"
+#include "Global.h"
+#include "LTexture.h"
 
 bool init()
 {
@@ -9,18 +11,18 @@ bool init()
 
     if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
     {
-        printf( "failed to initialized %s/n", SDL_GetError() );
+        std::cout << "failed to initialized: " << SDL_GetError() << std::endl;
     }
     else
     {
         if( !SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "1" ) )
         {
-            printf("linear texture has error /n" );
+            std::cout << "linear texture has error: " << std::endl;
         }
         gWindow = SDL_CreateWindow ( "Push The Box", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
         if( gWindow == NULL )
         {
-            printf("Window can not be created: %s/n", SDL_GetError() );
+            std::cout << "Window can not be created: " << SDL_GetError() << std::endl;
             success = false;
         }
         else
@@ -28,17 +30,28 @@ bool init()
             gRenderer = SDL_CreateRenderer( gWindow, -1, SDL_RENDERER_ACCELERATED );
             if( gRenderer == NULL )
             {
-                printf("Renderer can not be created: %s/n", SDL_GetError() );
+                std::cout << "Renderer can not be created: " << SDL_GetError() << std::endl;
                 success = false;
             }
             else
             {
-                SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
+                SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0x00 );
 
                 int imgFlags = IMG_INIT_PNG;
                 if( !( IMG_Init( imgFlags ) & imgFlags ) )
                 {
-                    printf("SDL_Image could not be initialized %s/n", SDL_GetError() );
+                    std::cout << "SDL_Image could not be initialized: " <<  SDL_GetError() << std::endl;
+                    success = false;
+                }
+                if (TTF_Init() == -1)
+                {
+                    std::cout << "SDL_ttf could not initialize! SDL_ttf Error: " <<  TTF_GetError() << std::endl;
+                    success = false;
+                }
+
+                if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
+                {
+                    printf("SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError());
                     success = false;
                 }
             }
@@ -47,37 +60,52 @@ bool init()
     return success;
 }
 
-bool loadMedia( Tile* tiles[], const char* map_path )
+bool loadMedia()
 {
     bool success = true;
 
     if( !gMainChar.loadFromFile( "Texture/The_thing.png" ) )
     {
-        printf( "failed to load mainChar texture /n" );
+        std::cout <<  "failed to load mainChar texture" << std::endl;
         success = false;
     }
 
     if( !gTileTexture.loadFromFile( "Texture/TileTexture.png" ) )
     {
-        printf( "failed to load tile texture /n" );
-        success = false;
-    }
-
-    if( !setTiles( tiles, map_path ) )
-    {
-        printf( "failed to load tile map /n");
+        std::cout << "failed to load tile texture" << std::endl;
         success = false;
     }
 
     if( !gPushObject.loadFromFile( "Texture/PushObject.png" ) )
     {
-        printf( "failed to load object texture /n");
+        std::cout << "failed to load object texture" << std::endl;
     }
 
+    if (!gBackground.loadFromFile("Texture/Menu_background.png"))
+    {
+        std::cout << "failed to load object texture" << std::endl;
+    }
+
+    WinFont = TTF_OpenFont("Texture/QuinqueFive.ttf", 32);
+
+    gFont = TTF_OpenFont("Texture/QuinqueFive.ttf", 24);
+    if (gFont == NULL)
+    {
+        std::cout << "Failed to load lazy font!SDL_ttf Error :"  <<  TTF_GetError() << std::endl;
+        success = false;
+    }
+    if (!gRetry[0].loadFromFile("Texture/Retry.png"))
+    {
+        std::cout << "failed to load retry texture" << std::endl;
+    }
+    if (!gRetry[1].loadFromFile("Texture/menu.png"))
+    {
+        std::cout << "failed to load menu texture" << std::endl;
+    }
     return success;
 }
 
-void close( Tile* tiles[], PushObject* push[])
+void close( Tile* tiles[], PushObject* push[], int index)
 {
     for( int i = 0; i < TOTAL_TILES; i++ )
     {
@@ -88,7 +116,7 @@ void close( Tile* tiles[], PushObject* push[])
         }
     }
 
-    for (int i = 0; i < 2; ++i)
+    for (int i = 0; i < index; ++i)
     {
         if (push[i] != NULL)
         {
@@ -97,15 +125,35 @@ void close( Tile* tiles[], PushObject* push[])
         }
     }
 
+    Mix_FreeChunk(MoveSound);
+    Mix_FreeChunk(CompleteSound);
+    Mix_FreeChunk(Clicking);
+    MoveSound = NULL;
+    CompleteSound = NULL;
+    Clicking = NULL;
+
+    Mix_FreeMusic(gMusic);
+    gMusic = NULL;
+
+    TTF_CloseFont(gFont);
+    gFont = NULL;
+
     gPushObject.free();
     gMainChar.free();
     gTileTexture.free();
+    gBackground.free();
+
+    for (int i = 0; i < 3; i++)
+    {
+        gTextTexture[i].free();
+    }
 
     SDL_DestroyWindow( gWindow );
     SDL_DestroyRenderer( gRenderer );
     gWindow = NULL;
     gRenderer = NULL;
 
+    TTF_Quit();
     IMG_Quit();
     SDL_Quit();
 }
@@ -150,114 +198,6 @@ bool checkCollision( SDL_Rect a, SDL_Rect b )
     return true;
 }
 
-
-bool setTiles( Tile* tiles[], const char* map_path )
-{
-	bool tilesLoaded = true;
-
-    //The tile offsets
-    int x = 252, y = 72;
-
-    //Open the map
-    std::ifstream map( map_path );
-
-    //If the map couldn't be loaded
-    if( map.fail() )
-    {
-		printf( "Unable to load map file!\n" );
-		tilesLoaded = false;
-    }
-	else
-	{
-		for( int i = 0; i < TOTAL_TILES; ++i )
-		{
-			int tileType = -1;
-
-			map >> tileType;
-
-			if( map.fail() )
-			{
-				printf( "Error loading map: Unexpected end of file!\n" );
-				tilesLoaded = false;
-				break;
-			}
-
-			if( ( tileType >= 0 ) && ( tileType < TOTAL_TILE_SPRITES ) )
-			{
-				tiles[ i ] = new Tile( x, y, tileType );
-			}
-			else
-			{
-				printf( "Error loading map: Invalid tile type at %d!\n", i );
-				tilesLoaded = false;
-				break;
-			}
-
-			x += TILE_WIDTH;
-
-			if( x >= 828 )
-			{
-				x = 252;
-
-				y += TILE_HEIGHT;
-			}
-		}
-
-		if( tilesLoaded )
-		{
-            // chinh lay tileType
-			gTileClips[ TILE_GRASS ].x = 0;
-			gTileClips[ TILE_GRASS ].y = 0;
-			gTileClips[ TILE_GRASS ].w = TILE_WIDTH;
-			gTileClips[ TILE_GRASS ].h = TILE_HEIGHT;
-
-			gTileClips[ TILE_FLOWER ].x = 0;
-			gTileClips[ TILE_FLOWER ].y = 48;
-			gTileClips[ TILE_FLOWER ].w = TILE_WIDTH;
-			gTileClips[ TILE_FLOWER ].h = TILE_HEIGHT;
-
-			gTileClips[ TILE_DEATH ].x = 0;
-			gTileClips[ TILE_DEATH ].y = 96;
-			gTileClips[ TILE_DEATH ].w = TILE_WIDTH;
-			gTileClips[ TILE_DEATH ].h = TILE_HEIGHT;
-
-			gTileClips[ TILE_PLANK ].x = 48;
-			gTileClips[ TILE_PLANK ].y = 0;
-			gTileClips[ TILE_PLANK ].w = TILE_WIDTH;
-			gTileClips[ TILE_PLANK ].h = TILE_HEIGHT;
-
-			gTileClips[ TILE_BRICK ].x = 96;
-			gTileClips[ TILE_BRICK ].y = 0;
-			gTileClips[ TILE_BRICK ].w = TILE_WIDTH;
-			gTileClips[ TILE_BRICK ].h = TILE_HEIGHT;
-
-			gTileClips[ TILE_FLOOR ].x = 48;
-			gTileClips[ TILE_FLOOR ].y = 48;
-			gTileClips[ TILE_FLOOR ].w = TILE_WIDTH;
-			gTileClips[ TILE_FLOOR ].h = TILE_HEIGHT;
-
-			gTileClips[ TILE_GOAL ].x = 96;
-			gTileClips[ TILE_GOAL ].y = 48;
-			gTileClips[ TILE_GOAL ].w = TILE_WIDTH;
-			gTileClips[ TILE_GOAL ].h = TILE_HEIGHT;
-
-			gTileClips[ TILE_VOID ].x = 96;
-			gTileClips[ TILE_VOID ].y = 96;
-			gTileClips[ TILE_VOID ].w = TILE_WIDTH;
-			gTileClips[ TILE_VOID ].h = TILE_HEIGHT;
-
-			gTileClips[ TILE_SAND ].x = 48;
-			gTileClips[ TILE_SAND ].y = 96;
-			gTileClips[ TILE_SAND ].w = TILE_WIDTH;
-			gTileClips[ TILE_SAND ].h = TILE_HEIGHT;
-		}
-	}
-
-    map.close();
-
-    return tilesLoaded;
-}
-
 bool touchesWall( SDL_Rect box, Tile* tiles[] )
 {
     for( int i = 0; i < TOTAL_TILES; ++i )
@@ -288,44 +228,3 @@ bool WinGame(int goalNum, PushObject* box[])
     else return false;
 }
 
-bool setObject(PushObject* push[], const char* map_data)
-{
-    bool loadData = true;
-    std::ifstream map(map_data);
-
-    if (map.fail())
-    {
-        std::cout << "failed to load map_data" << std::endl;
-        loadData = false;
-    }
-    else
-    {
-        for (int i = 0; i < 2; ++i)
-        {
-            int pos = -1;
-            
-            map >> pos;
-            if (map.fail())
-            {
-                std::cout << "end of map_data";
-                loadData = false;
-                break;
-            }
-            push[i] = new PushObject(pos);
-        }
-        if (loadData)
-        {
-            gObjectClips[GOAL].x = 48;
-            gObjectClips[GOAL].y = 0;
-            gObjectClips[GOAL].h = TILE_HEIGHT;
-            gObjectClips[GOAL].w = TILE_WIDTH;
-
-            gObjectClips[GOAL_NOT].x = 0;
-            gObjectClips[GOAL_NOT].y = 0;
-            gObjectClips[GOAL_NOT].h = TILE_HEIGHT;
-            gObjectClips[GOAL_NOT].w = TILE_WIDTH;
-        }
-    }
-    map.close();
-    return loadData;
-}

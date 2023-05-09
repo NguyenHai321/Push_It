@@ -10,6 +10,8 @@ Tile::Tile( int x, int y, int tileType )
     mBox.h = TILE_HEIGHT;
 
     mType = tileType;
+
+    occupiedTile = no;
 }
 
 void Tile::render()

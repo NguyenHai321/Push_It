@@ -7,7 +7,18 @@
 
 mainChar::mainChar()
 {
-    mPos = 41;
+    mPos = 0;
+    mVel = 0;
+
+    mBox.w = WIDTH;
+    mBox.h = HEIGHT;
+
+    CharStatus = UP;
+}
+
+mainChar::mainChar(int pos)
+{
+    mPos = pos;
     mVel = 0;
 
     mBox.w = WIDTH;
@@ -43,10 +54,10 @@ void mainChar::handleEvent( SDL_Event& e )
     }
 }
 
-void mainChar::move( Tile* tiles[] , PushObject* push[])
+void mainChar::move( Tile* tiles[] , PushObject* push[], int num)
 {
     mPos += mVel;
-    for (int i = 0; i < 2; ++i)
+    for (int i = 0; i < num; ++i)
     {
         if (checkCollision(tiles[mPos]->getBox(), push[i]->getBox()))
         {
@@ -83,7 +94,17 @@ SDL_Rect mainChar::getBox()
     return mBox;
 }
 
+void mainChar::updatePos(int pos)
+{
+    mPos = pos;
+}
+
 status mainChar::getStatus()
 {
     return CharStatus;
+}
+
+void mainChar::resetStatus()
+{
+    CharStatus = UP;
 }

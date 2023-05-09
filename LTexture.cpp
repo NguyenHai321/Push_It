@@ -6,6 +6,8 @@ LTexture::LTexture()
     mTexture = NULL;
     mWidth = 0;
     mHeight = 0;
+
+	mBox = { 0, 0, 0, 0 };
 }
 
 LTexture::~LTexture()
@@ -45,8 +47,7 @@ bool LTexture::loadFromFile( std::string path )
     return mTexture != NULL;
 }
 
-#if defined(SDL_TTF_MAJOR_VERSION)
-bool LTexture::loadFromRenderedText( std::string textureText, SDL_Color textColor )
+bool LTexture::loadFromRenderedText( std::string textureText, SDL_Color textColor, TTF_Font* gFont )
 {
 	//Get rid of preexisting texture
 	free();
@@ -80,7 +81,6 @@ bool LTexture::loadFromRenderedText( std::string textureText, SDL_Color textColo
 	//Return success
 	return mTexture != NULL;
 }
-#endif
 
 void LTexture::free()
 {
@@ -121,7 +121,7 @@ void LTexture::render( int x, int y, SDL_Rect* clip, double angle, SDL_Point* ce
 		renderQuad.w = clip->w;
 		renderQuad.h = clip->h;
 	}
-
+	mBox = renderQuad;
 	//Render to screen
     SDL_RenderCopyEx( gRenderer, mTexture, clip, &renderQuad, angle, center, flip );
 }
@@ -134,4 +134,9 @@ int LTexture::getWidth()
 int LTexture::getHeight()
 {
 	return mHeight;
+}
+
+SDL_Rect LTexture::getBox()
+{
+	return mBox;
 }

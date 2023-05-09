@@ -4,6 +4,8 @@
 const int SCREEN_WIDTH = 1080;
 const int SCREEN_HEIGHT = 720;
 
+const int TOTAL_BUTTONS = 10;
+
 const int EDGE_TILES = 12;
 
 const int LEVEL_WIDTH = 1080;
@@ -45,6 +47,24 @@ enum Occupied
 {
     yes,
     no
+};
+
+enum gameState
+{
+    menu,
+    playing,
+    win,
+    reset,
+    loading,
+    pause
+};
+
+enum button_type
+{
+    Start,
+    Continue,
+    Quit,
+    Levels
 };
 
 #endif // CONSTANT_H_INCLUDED

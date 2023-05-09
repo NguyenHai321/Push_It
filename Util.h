@@ -10,13 +10,11 @@
 
 bool init();
 
-bool loadMedia( Tile* tiles[], const char* map_path );
+bool loadMedia();
 
-void close( Tile* tiles[], PushObject* push[]);
+void close( Tile* tiles[], PushObject* push[], int index);
 
 bool checkCollision( SDL_Rect a, SDL_Rect b );
-
-bool setTiles( Tile* tiles[], const char* map_path );
 
 bool touchesWall( SDL_Rect box, Tile* tiles[] );
 

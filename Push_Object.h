@@ -11,6 +11,7 @@ public:
     static const int WIDTH = 48;
     static const int HEIGHT = 48;
 
+    PushObject();
     PushObject( int pos );
 
     bool move(Tile* tile[], status Move);

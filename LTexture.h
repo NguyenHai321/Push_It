@@ -3,12 +3,14 @@
 
 #include <SDL.h>
 #include <SDL_image.h>
+#include "SDL_ttf.h"
 #include <stdio.h>
 #include <string>
 #include <fstream>
 #include <iostream>
-
+#include <SDL_mixer.h>
 #include "Constant.h"
+
 
 class LTexture
 {
@@ -19,9 +21,7 @@ public:
 
     bool loadFromFile( std::string path );
 
-    #if defined(SDL_TTF_MAJOR_VERSION)
-    bool loadFromRenderedText( std::string textureText, SDL_Color textColor );
-    #endif // defined
+    bool loadFromRenderedText( std::string textureText, SDL_Color textColor, TTF_Font* gFont);
 
     void free();
 
@@ -36,8 +36,12 @@ public:
     int getWidth();
     int getHeight();
 
+    SDL_Rect getBox();
+
 private:
     SDL_Texture* mTexture;
+
+    SDL_Rect mBox;
 
     int mWidth;
     int mHeight;
