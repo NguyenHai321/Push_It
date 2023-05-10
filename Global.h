@@ -25,6 +25,7 @@ extern LTexture gTextTexture[3];
 extern LTexture gWinText[3];
 extern LTexture gRetry[2];
 extern LTexture gLevelText;
+extern LTexture gCompleteGame;
 
 extern SDL_Rect gObjectClips[ 2 ];
 extern SDL_Rect gTileClips[ TOTAL_TILE_SPRITES ] ;

@@ -18,6 +18,7 @@ LTexture gTextTexture[3];
 LTexture gWinText[3];
 LTexture gRetry[2];
 LTexture gLevelText;
+LTexture gCompleteGame;
 
 SDL_Rect gObjectClips[ 2 ];
 SDL_Rect gTileClips[ TOTAL_TILE_SPRITES ] ;

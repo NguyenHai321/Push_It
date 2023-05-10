@@ -244,8 +244,6 @@ bool Game::visualize()
 		mainChar Rabbit;
 		LButton gButton;
 
-		status move = NONE;
-
 		std::string level;
 
 		SDL_Rect Background = { 0, 0, 1080, 720 };
@@ -318,6 +316,7 @@ bool Game::visualize()
 					else if (e.type == SDL_MOUSEBUTTONUP)
 					{
 						textColor1 = { 0, 0, 255 };
+						gamestate = loading;
 					}
 				}
 				else
@@ -435,6 +434,13 @@ bool Game::visualize()
 						deLevel(tileSet, Boxes, numOfBox);
 					}
 				}
+				if (currentLevel == 20 && (e.type == SDL_KEYDOWN || e.type == SDL_MOUSEBUTTONUP ) && e.key.repeat == 0 && gamestate == win)
+				{
+					gamestate = menu;
+					TTF_CloseFont(WinFont);
+					WinFont = NULL;
+					deLevel(tileSet, Boxes, numOfBox);
+				}
 				Rabbit.handleEvent(e);
 			}
 
@@ -511,6 +517,66 @@ bool Game::visualize()
 					Rabbit.updatePos(Rabbit_pos);
 					Rabbit.resetStatus();
 					break;
+				case 11:
+					gamestate = playing;
+					Level(tileSet, Boxes, "map/map11.map");
+					Rabbit.updatePos(Rabbit_pos);
+					Rabbit.resetStatus();
+					break;
+				case 12:
+					gamestate = playing;
+					Level(tileSet, Boxes, "map/map12.map");
+					Rabbit.updatePos(Rabbit_pos);
+					Rabbit.resetStatus();
+					break;
+				case 13:
+					gamestate = playing;
+					Level(tileSet, Boxes, "map/map13.map");
+					Rabbit.updatePos(Rabbit_pos);
+					Rabbit.resetStatus();
+					break;
+				case 14:
+					gamestate = playing;
+					Level(tileSet, Boxes, "map/map14.map");
+					Rabbit.updatePos(Rabbit_pos);
+					Rabbit.resetStatus();
+					break;
+				case 15:
+					gamestate = playing;
+					Level(tileSet, Boxes, "map/map15.map");
+					Rabbit.updatePos(Rabbit_pos);
+					Rabbit.resetStatus();
+					break;
+				case 16:
+					gamestate = playing;
+					Level(tileSet, Boxes, "map/map16.map");
+					Rabbit.updatePos(Rabbit_pos);
+					Rabbit.resetStatus();
+					break;
+				case 17:
+					gamestate = playing;
+					Level(tileSet, Boxes, "map/map17.map");
+					Rabbit.updatePos(Rabbit_pos);
+					Rabbit.resetStatus();
+					break;
+				case 18:
+					gamestate = playing;
+					Level(tileSet, Boxes, "map/map18.map");
+					Rabbit.updatePos(Rabbit_pos);
+					Rabbit.resetStatus();
+					break;
+				case 19:
+					gamestate = playing;
+					Level(tileSet, Boxes, "map/map19.map");
+					Rabbit.updatePos(Rabbit_pos);
+					Rabbit.resetStatus();
+					break;
+				case 20:
+					gamestate = playing;
+					Level(tileSet, Boxes, "map/map20.map");
+					Rabbit.updatePos(Rabbit_pos);
+					Rabbit.resetStatus();
+					break;
 				}
 			}
 			else if (gamestate == menu)
@@ -558,16 +624,26 @@ bool Game::visualize()
 			}
 			else if (gamestate == win)
 			{
-				gWinText[0].loadFromRenderedText("Continue", WinText1, WinFont);
-				gWinText[1].loadFromRenderedText("Retry", WinText2, WinFont);
-				gWinText[2].loadFromRenderedText("Menu", WinText3, WinFont);
+				if (currentLevel != 20)
+				{
+					gWinText[0].loadFromRenderedText("Continue", WinText1, WinFont);
+					gWinText[1].loadFromRenderedText("Retry", WinText2, WinFont);
+					gWinText[2].loadFromRenderedText("Menu", WinText3, WinFont);
 
-				SDL_RenderClear(gRenderer);
-				gWinText[0].render(260, 260);
-				gWinText[1].render(650, 260);
-				gWinText[2].render(450, 360);
-				SDL_RenderPresent(gRenderer);
-
+					SDL_RenderClear(gRenderer);
+					gWinText[0].render(260, 260);
+					gWinText[1].render(650, 260);
+					gWinText[2].render(450, 360);
+					SDL_RenderPresent(gRenderer);
+				}
+				else
+				{
+					SDL_Color bla = { 0, 0, 0 };
+					gCompleteGame.loadFromRenderedText("WIN!!!", bla, WinFont);
+					SDL_RenderClear(gRenderer);
+					gCompleteGame.render((SCREEN_WIDTH - gCompleteGame.getWidth()) / 2, (SCREEN_HEIGHT - gCompleteGame.getHeight()) / 2);
+					SDL_RenderPresent(gRenderer);
+				}
 			}
 		}
 		close(tileSet, Boxes, numOfBox);
